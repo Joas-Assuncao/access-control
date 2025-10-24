@@ -35,7 +35,6 @@ export class AuthService {
     const user = await this.validateUser(loginDto.email, loginDto.password);
 
     if (!user) {
-      // Log failed attempt
       await this.accessLogsService.create({
         email: loginDto.email,
         ipAddress,
@@ -45,7 +44,6 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    // Log successful login
     await this.accessLogsService.create({
       userId: user.id,
       ipAddress,

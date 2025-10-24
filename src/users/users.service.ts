@@ -4,9 +4,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
 
+import * as bcrypt from 'bcryptjs';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 
@@ -20,7 +20,6 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { email, password, ...userData } = createUserDto;
 
-    // Check if user already exists
     const existingUser = await this.usersRepository.findOne({
       where: { email },
     });
@@ -28,7 +27,6 @@ export class UsersService {
       throw new ConflictException('Email já está em uso');
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = this.usersRepository.create({

@@ -15,10 +15,11 @@ API RESTful para controle de acesso com autenticação JWT, desenvolvida com Nes
 
 - **Node.js 18+**
 - **NestJS** - Framework Node.js
-- **PostgreSQL** - Banco de dados
+- **PostgreSQL** - Banco de dados (Docker)
+- **Redis** - Cache (Docker)
 - **TypeORM** - ORM
 - **JWT** - Autenticação
-- **Docker** - Containerização
+- **Docker** - Containerização (apenas bancos)
 - **Jest** - Testes
 - **Swagger** - Documentação
 
@@ -59,44 +60,42 @@ REDIS_HOST=localhost
 REDIS_PORT=6379
 ```
 
-### 4. Execute com Docker (Recomendado)
-
-**Para Windows:**
-```cmd
-# Opção 1: Script automático
-scripts\setup.bat
-
-# Opção 2: PowerShell
-powershell -ExecutionPolicy Bypass -File scripts\setup.ps1
-
-# Opção 3: Manual
-docker-compose up -d
-```
-
-**Para Linux/macOS:**
+### 4. Inicie os serviços de banco de dados
 ```bash
-# Script automático
-chmod +x scripts/setup.sh
-./scripts/setup.sh
-
-# Ou manual
-docker-compose up -d
-```
-
-### 5. Ou execute localmente
-```bash
-# Inicia apenas o banco de dados
+# Inicia apenas PostgreSQL e Redis
 docker-compose up -d postgres redis
-
-# Instala dependências
-npm install
-
-# Executa migrations
-npm run migration:run
-
-# Executa a aplicação
-npm run start:dev
 ```
+
+### 5. Execute as migrations
+```bash
+npm run migration:run
+```
+
+### 6. Execute a aplicação
+```bash
+# Modo desenvolvimento (com hot reload)
+npm run start:dev
+
+# Ou modo produção
+npm run start:prod
+```
+
+**Nota:** A API roda diretamente no terminal para facilitar o debug e visualização dos logs. Os serviços de banco de dados (PostgreSQL e Redis) continuam rodando no Docker.
+
+## 💻 Desenvolvimento
+
+### Fluxo de desenvolvimento
+1. **Inicie os bancos**: `docker-compose up -d postgres redis`
+2. **Execute migrations**: `npm run migration:run`
+3. **Inicie a API**: `npm run start:dev`
+4. **Acesse a documentação**: http://localhost:3000/api/docs
+
+### Vantagens desta abordagem
+- ✅ Logs da aplicação visíveis no terminal
+- ✅ Hot reload automático durante desenvolvimento
+- ✅ Debug mais fácil com breakpoints
+- ✅ Bancos isolados em containers
+- ✅ Fácil reinicialização dos bancos
 
 ## 🗄️ Migrations
 
@@ -225,25 +224,23 @@ src/
 
 ## 🐳 Docker
 
-### Serviços
-- **app**: API NestJS (porta 3000)
+### Serviços (apenas bancos de dados)
 - **postgres**: Banco PostgreSQL (porta 5432)
 - **redis**: Cache Redis (porta 6379)
 
 ### Comandos úteis
 ```bash
-# Ver logs de todos os serviços
-docker-compose logs
+# Ver logs dos serviços de banco
+docker-compose logs postgres redis
 
 # Parar todos os serviços
 docker-compose down
 
-# Rebuild da aplicação
-docker-compose up --build
-
-# Executar comandos no container
-docker-compose exec app npm test
+# Reiniciar apenas os bancos
+docker-compose restart postgres redis
 ```
+
+**Nota:** A aplicação NestJS roda diretamente no terminal, não em container, para facilitar o desenvolvimento e debug.
 
 ## 🚀 Deploy
 
