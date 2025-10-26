@@ -20,9 +20,11 @@ export class AccessLog {
   @CreateDateColumn()
   timestamp: Date;
 
-  @ApiProperty({ description: 'ID do usuário que fez login' })
-  @Column('uuid')
-  userId: string;
+  @ApiProperty({
+    description: 'ID do usuário que fez login (nullable para falhas)',
+  })
+  @Column('uuid', { nullable: true })
+  userId?: string;
 
   @ApiProperty({ description: 'Endereço IP do usuário' })
   @Column({ length: 45 })
@@ -30,13 +32,13 @@ export class AccessLog {
 
   @ApiProperty({ description: 'User-Agent do navegador' })
   @Column({ type: 'text', nullable: true })
-  userAgent: string;
+  userAgent?: string;
 
   @ApiProperty({ description: 'Status do login (success, failed)' })
   @Column({ length: 20, default: 'success' })
   status: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'userId' })
-  user: User;
+  user?: User;
 }

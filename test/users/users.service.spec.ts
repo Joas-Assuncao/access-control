@@ -8,6 +8,13 @@ import { CreateUserDto } from '../../src/users/dto/create-user.dto';
 import { User, UserRole } from '../../src/users/entities/user.entity';
 import { UsersService } from '../../src/users/users.service';
 
+const mockedBcrypt = bcrypt as jest.Mocked<typeof bcrypt>;
+
+jest.mock('bcryptjs', () => ({
+  hash: jest.fn(),
+  compare: jest.fn(),
+}));
+
 describe('UsersService', () => {
   let service: UsersService;
   let repository: Repository<User>;
@@ -59,7 +66,7 @@ describe('UsersService', () => {
       mockRepository.save.mockResolvedValue(createdUser);
 
       // Mock bcrypt.hash
-      jest.spyOn(bcrypt, 'hash').mockResolvedValue(hashedPassword as never);
+      (bcrypt.hash as jest.Mock).mockResolvedValue(hashedPassword);
 
       const result = await service.create(createUserDto);
 
@@ -130,24 +137,22 @@ describe('UsersService', () => {
 
   describe('validatePassword', () => {
     it('should return true for valid password', async () => {
-      jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
       const result = await service.validatePassword(
         'password',
         'hashedPassword',
       );
-
       expect(result).toBe(true);
     });
 
     it('should return false for invalid password', async () => {
-      jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       const result = await service.validatePassword(
         'wrongpassword',
         'hashedPassword',
       );
-
       expect(result).toBe(false);
     });
   });
